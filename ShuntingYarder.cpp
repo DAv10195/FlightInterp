@@ -8,12 +8,13 @@ using namespace std;
 
 //choose which operator to create during run time.
 
-Expression *chooseOp(Expression *leftVal, Expression *rightVal, char op){
+Expression* chooseOp(Expression *leftVal, Expression *rightVal, char &op){
     switch(op){
         case '+': return new Plus(leftVal, rightVal);
         case '-': return new Minus(leftVal, rightVal);
         case '*': return new Mult(leftVal, rightVal);
         case '/': return new Div(leftVal, rightVal);
+        default: return nullptr;
     }
 }
 
@@ -31,16 +32,16 @@ Expression *chooseOp(Expression *leftVal, Expression *rightVal, char op){
 
 	//initialize empty string.
 
-ShuntingYarder::ShuntingYarder(){
+ShuntingYarder :: ShuntingYarder(){
 	this->toShunt="";
 }
 //set the string.
-void ShuntingYarder:: setExpToShunt(string &s){
+void ShuntingYarder :: SetExpToShunt(string &s){
 	this->toShunt = s;
 }
 //the algorithm.
 Expression* ShuntingYarder::Shunt(){
-	int i;
+	unsigned int i;
 	bool isNeg = false;
 	bool isAfterOp = true;
 	stack <Expression*> expressions;

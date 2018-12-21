@@ -1,26 +1,12 @@
 //implementation of FlightInterp class
 #include "FlightInterp.h"
+#include "Utils.h"
+#include <map>
 
 int main() {
-	string s = "OpenDataServer { (50+4)*100 (5+2) 	/ 7 }";
-	Lexer* l = new Lexer();
-	l->setStrToLex(s);
-	vector<string> v = l->lex();
-	vector<string>& p = v;
-	for (string str : p)
-	{
-		cout << str << endl;
-	}
-	Expression* e = new Div(new Num(20), new Num(5));
-	try
-	{
-		cout << e->calculate();
-	}
-	catch (runtime_error &e)
-	{
-		cout << e.what() << endl;
-	}
-	delete e;
-	delete l;
+	string s = "(x+3)>=2";
+	map<string, double> m;
+	m["x"] = 5.0;
+	cout << assignVars(m, s) << endl;
 	return 0;
 }

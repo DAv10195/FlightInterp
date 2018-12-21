@@ -1,8 +1,25 @@
-//header file for Expression interface.
+//header file for Expression interface
 #ifndef EXPRESSION_H_
 #define EXPRESSION_H_
 
+#include "FlightInterp.h"
 #include "Command.h"
+#include <stdexcept>
+#include <map>
+
+class Command;
+class ShuntingYarder;
+class Expression;
+class UnaryExpression;
+class BinaryExpression;
+class Num;
+class Plus;
+class Minus;
+class Mult;
+class Div;
+class Neg;
+class CommandExp;
+class BooleanExpression;
 //Expression interface
 class Expression
 {
@@ -70,7 +87,7 @@ class Div : public BinaryExpression
 		{	//division by zero...
 			if (!(this->right)->calculate())
 			{
-				throw runtime_error("Error: Division by zero!");
+				throw std::runtime_error("Error: Division by zero!");
 			}
 
 			return (this->left)->calculate() / (this->right)->calculate();
@@ -84,14 +101,26 @@ class Neg : public UnaryExpression
 		double calculate() { return -1 * (this->exp)->calculate(); }
 };
 //Command Expression class
-class CommandExp : public Expression
+class CommandExpression : public Expression
 {
 	Command* cmd;
 
 	public:
-		CommandExp(Command* c) { this->cmd = c; }
-		virtual double calculate() { return (this->cmd)->execute(); }
-		~CommandExp() { delete this->cmd; }
+		CommandExpression(Command* c);
+		double calculate();
+		~CommandExpression();
+};
+
+class BooleanExpression : public Expression
+{
+	map<string, double> sTable;
+	vector<string> toCalc;
+	ShuntingYarder* Shunter;
+
+	public:
+		BooleanExpression(map<string, double> &m, vector<string> &v, ShuntingYarder* sy);
+		double calculate();
+		~BooleanExpression(){};
 };
 
 #endif

@@ -1,11 +1,22 @@
-//header file for FlightInterp class.
+//header file for FlightInterp class
 #ifndef FLIGHTINTERP_H_
 #define FLIGHTINTERP_H_
 
-#include <iostream>
 #include "Expression.h"
+#include "Command.h"
+#include <string>
+#include <vector>
+#include <iostream>
+#include <map>
 
-//Lexer class declaration.
+using namespace std;
+
+class Expression;
+class Lexer;
+class ShuntingYarder;
+class ConditionParser;
+class Parser;
+//Lexer class
 class Lexer
 {
 	string toLex;
@@ -16,16 +27,38 @@ class Lexer
 		virtual vector<string> lex();
 		virtual ~Lexer(){};
 };
-//Parser class declaration.
-class Parser
+//ShuntingYarder class
+class ShuntingYarder
 {
-	vector<string> toParse;
+	string toShunt;
 
 	public:
-		Parser(){};
+		ShuntingYarder();
+		virtual void SetExpToShunt(string &s);
+		virtual Expression* Shunt();
+		virtual ~ShuntingYarder(){};
+};
+//ConditionParser class
+class ConditionParser
+{
+	Expression* exp;
+
+	public:
+		ConditionParser(Expression* e);
+		virtual double Parse();
+		virtual ~ConditionParser(){};
+};
+//Parser class
+class Parser
+{
+	ShuntingYarder* Shunter;
+	vector<string> input;
+
+	public:
+		Parser(ShuntingYarder* sy);
 		virtual void setVecToParse(vector<string> &toParse);
 		virtual void Parse();
-		virtual ~Parser(){};
+		virtual ~Parser();
 };
 
 #endif
