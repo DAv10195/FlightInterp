@@ -1,5 +1,11 @@
 //implementation of utility functions.
 #include "Utils.h"
+#include <fstream>
+#define COND_OPERANDS 3
+#define FIRST_OP 0
+#define SECOND_OP 2
+#define FAIL 1
+
 //decides if the inputed character is a valid operator.
 bool isOper(char &c)
 {	//mathematical
@@ -65,7 +71,7 @@ bool isNum(string &s)
 	return true;
 }
 //an Empty vector indicates an invalid condition. otherwise, the condition is valid.
-vector<string> ifCond(string &s)
+vector<string> ifCond(map<string, double>* st, string &s)
 {
 	char c = 0;
 	unsigned int i = 0;
@@ -113,6 +119,7 @@ vector<string> ifCond(string &s)
 				{
 					str = "<";
 					op = str;
+					toRet.push_back(op);
 					str = "";
 				}
 			}
@@ -171,15 +178,27 @@ vector<string> ifCond(string &s)
 		i++;
 	}
 	//case num of operands is not 2 or no operator was read
-	if (op == "" || toRet.size() != 3)
+	if (op == "" || toRet.size() != COND_OPERANDS)
 	{
+		toRet.clear();
+	}
+	//case first operand is not a number and an undeclared variable
+	if (!isNum(toRet[FIRST_OP]) && st->find(toRet[FIRST_OP]) == st->end())
+	{
+		cout << "var " << toRet[FIRST_OP] << " undeclared" << endl;
+		toRet.clear();
+	}
+	//case second operand is not a number and an undeclared variable
+	if (!isNum(toRet[SECOND_OP]) && st->find(toRet[SECOND_OP]) == st->end())
+	{
+		cout << "var " << toRet[SECOND_OP] << " undeclared" << endl;
 		toRet.clear();
 	}
 
 	return toRet;
 }
 //assigns value to variables in the string. if a variable isn't declared returns empty string.
-string assignVars(map<string, double> &st, string &s)
+string assignVars(map<string, double>* st, string &s)
 {
 	string toRet = "";
 	string var = "";
@@ -212,17 +231,49 @@ string assignVars(map<string, double> &st, string &s)
 			}
 			i--;
 			//case variable hasn't been declared;
-			if (st.find(var) == st.end())
+			if (st->find(var) == st->end())
 			{
 				return "";
 			}
 			//assign value instead of the variable to the returned string.
-			val = st[var];
+			val = (*st)[var];
 			toRet += to_string(val);
 		}
 	}
 
 	return toRet;
 }
+//executes the script written in the inputed file path
+double execFromFile(map<string, double>* sTable, string &path, Lexer* l, Parser* p)
+{
+	string line = "";
+	vector<string> toParse;
+	vector<string> fromLexer;
+	ifstream f;
+	unsigned int size = 0, i = 0;
 
+	f.open(path);
+	if (!f)
+	{	//invalid path...
+		cout << "Invalid file path was passed" << endl;
+		return FAIL;
+	}
+	else
+	{
+		while (getline(f, line))
+		{	//lex all of the script in the file
+			l->setStrToLex(line);
+			fromLexer = l->lex();
+			size = fromLexer.size();
+			for (; i < size; i++)
+			{
+				toParse.push_back(fromLexer[i]);
+			}
+			i = 0;
+		}
+		f.close();
+		p->setVecToParse(toParse);
+		return p->Parse(sTable);
+	}
+}
 

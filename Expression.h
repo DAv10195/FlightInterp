@@ -116,12 +116,12 @@ class CommandExpression : public Expression
 
 class BooleanExpression : public Expression
 {
-	map<string, double> sTable;
+	map<string, double>* sTable;
 	vector<string> toCalc;
 	ShuntingYarder* Shunter;
 
 	public:
-		BooleanExpression(map<string, double> &m, vector<string> &v, ShuntingYarder* sy);
+		BooleanExpression(map<string, double>* m, vector<string> &v, ShuntingYarder* sy);
 		double calculate();
 		~BooleanExpression(){};
 };

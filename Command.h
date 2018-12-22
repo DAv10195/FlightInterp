@@ -25,22 +25,22 @@ class Command
 		vector<string> params;
 		unsigned int ind;
 		ShuntingYarder* sy;
-		map<string, double> sTable;
+		map<string, double>* sTable;
 		ConditionParser* cp;
 		vector<Command*> commands;
 
 	public:
-		Command() { this->ind = 0; this->sy = nullptr; this->cp = nullptr; }
+		Command() { this->ind = 0; this->sy = nullptr; this->cp = nullptr; this->sTable = nullptr; }
 		virtual double execute() { return 0; };
 		virtual void setParams(vector<string> &p) { this->params = p; };
 		virtual void setShuntingYarder(ShuntingYarder* s) { this->sy = s; }
 		virtual void setInd(unsigned int &i) { this->ind = i; };
-		virtual void setTable(map<string, double> &m) { this->sTable = m; }
+		virtual void setTable(map<string, double>* m) { this->sTable = m; }
 		virtual void setCondPar(ConditionParser* c) { this->cp = c; }
 		virtual void setCommands(vector<Command*> &v) { this->commands = v; }
 		virtual ~Command(){};
 };
-//AssignCommand class
+//WhileCommand class
 class WhileCommand : public Command
 {
 	public:
@@ -54,6 +54,7 @@ class OpenDataServerCommand : public Command
 	public:
 		OpenDataServerCommand() : Command(){}
 		virtual double execute();
+		virtual ~OpenDataServerCommand(){};
 };
 //ifCommand class
 class IfCommand : public Command
@@ -62,6 +63,30 @@ class IfCommand : public Command
 		IfCommand() : Command(){}
 		virtual double execute();
 		virtual ~IfCommand();
+};
+
+class RunFromFileCommand : public Command
+{
+	public:
+		RunFromFileCommand() : Command(){}
+		virtual double execute();
+		virtual ~RunFromFileCommand(){};
+};
+
+class ExitCommand : public Command
+{
+	public:
+		ExitCommand() : Command(){}
+		virtual double execute();
+		virtual ~ExitCommand(){};
+};
+
+class PrintCommand : public Command
+{
+	public:
+		PrintCommand() : Command(){}
+		virtual double execute();
+		virtual ~PrintCommand(){};
 };
 
 #endif

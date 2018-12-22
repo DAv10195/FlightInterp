@@ -1,8 +1,11 @@
 //BooleanExpression object implementation
 #include "Expression.h"
 #include "Utils.h"
+#define FIRST_OP 0
+#define SECOND_OP 2
+#define OP 1
 //constructor
-BooleanExpression :: BooleanExpression(map<string, double> &m, vector<string> &v, ShuntingYarder* sy)
+BooleanExpression :: BooleanExpression(map<string, double>* m, vector<string> &v, ShuntingYarder* sy)
 {
 	this->sTable = m;
 	this->toCalc = v;
@@ -12,9 +15,9 @@ BooleanExpression :: BooleanExpression(map<string, double> &m, vector<string> &v
 double BooleanExpression :: calculate()
 {
 	double operand1 = 0, operand2 = 0;
-	string var1 = this->toCalc[0];
-	string var2 = this->toCalc[2];
-	string op = this->toCalc[1];
+	string var1 = this->toCalc[FIRST_OP];
+	string var2 = this->toCalc[SECOND_OP];
+	string op = this->toCalc[OP];
 
 	if (isNum(var1))
 	{
@@ -22,7 +25,7 @@ double BooleanExpression :: calculate()
 	}
 	else
 	{
-		operand1 = this->sTable.at(var1);
+		operand1 = (this->sTable)->at(var1);
 	}
 
 	if (isNum(var2))
@@ -31,7 +34,7 @@ double BooleanExpression :: calculate()
 	}
 	else
 	{
-		operand2 = this->sTable.at(var2);
+		operand2 = (this->sTable)->at(var2);
 	}
 
 	if (op == "==")

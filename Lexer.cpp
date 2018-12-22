@@ -28,6 +28,26 @@ vector<string> Lexer :: lex()
 		{
 			i++;
 		}
+		//special case of a string input.
+		if (input.at(i) == '\"')
+		{
+			curExp.push_back(input.at(i));
+			i++;
+			while (i < len && input.at(i) != '\"')
+			{
+				curExp.push_back(input.at(i));
+				i++;
+			}
+			if (i == len)
+			{
+				tmp.push_back(curExp);
+				continue;
+			}
+			curExp.push_back(input.at(i));
+			i++;
+			tmp.push_back(curExp);
+			continue;
+		}
 		//reading numbers
 		while (i < len && isDig(input.at(i)))
 		{
@@ -86,7 +106,7 @@ vector<string> Lexer :: lex()
 		curExp = tmp[i];
 		j = i + 1;
 		//special case for assignment operator, bind or block indicators.
-		if (curExp == "=" || curExp == "bind" || curExp == "{" || curExp == "}")
+		if (curExp == "run" ||curExp == "=" || curExp == "bind" || curExp == "{" || curExp == "}")
 		{
 			toRet.push_back(curExp);
 			i = j;

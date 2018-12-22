@@ -1,6 +1,9 @@
 //ifCommand object implementation
 #include "Command.h"
 #include "FlightInterp.h"
+#define FAIL 1
+#define SUCCESS 0
+#define EXIT 2
 //execute method
 double IfCommand :: execute()
 {
@@ -13,13 +16,17 @@ double IfCommand :: execute()
 		for (; i < size; i++)
 		{
 			cmdRet = commands[i]->execute();
-			if (cmdRet)
+			if (cmdRet == FAIL)
 			{	//case one of the inner commands failed
-				return 1;
+				return FAIL;
+			}
+			if (cmdRet == EXIT)
+			{	//case exit command encountered
+				return EXIT;
 			}
 		}
 	}
-	return 0;
+	return SUCCESS;
 }
 //destructor
 IfCommand :: ~IfCommand()

@@ -57,7 +57,7 @@ class Parser
 	public:
 		Parser();
 		virtual void setVecToParse(vector<string> &toParse);
-		virtual void Parse();
+		virtual double Parse(map<string, double>* sTable);
 		virtual ~Parser();
 };
 
