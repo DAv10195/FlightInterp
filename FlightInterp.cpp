@@ -3,10 +3,16 @@
 #include "Utils.h"
 #include <map>
 
+
+
 int main() {
-	string s = "(x+3)>=2";
-	map<string, double> m;
-	m["x"] = 5.0;
-	cout << assignVars(m, s) << endl;
+	string s = "dkgjdkjdgj/sd//";
+	ShuntingYarder* sy = new ShuntingYarder();
+	sy->SetExpToShunt(s);
+	Expression* e = sy->Shunt();
+	if (e == nullptr)
+	{
+		cout << "bla";
+	}
 	return 0;
 }

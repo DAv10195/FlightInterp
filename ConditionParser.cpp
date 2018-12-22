@@ -11,3 +11,8 @@ double ConditionParser :: Parse()
 {
 	return (this->exp)->calculate();
 }
+
+ConditionParser :: ~ConditionParser()
+{
+	delete this->exp;
+}

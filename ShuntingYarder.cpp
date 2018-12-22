@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 #include <stack>
 #include "FlightInterp.h"
-
+#include "Utils.h"
 using namespace std;
 
 
@@ -30,6 +30,12 @@ Expression* chooseOp(Expression *leftVal, Expression *rightVal, char &op){
     return 0;
 }
 
+	int isValidChar(char c){
+		if (c == '+' || c== '-' || c == '*' || c== '/' || isdigit(c) ){
+			return true;
+		}
+		return false;
+	}
 	//initialize empty string.
 
 ShuntingYarder :: ShuntingYarder(){
@@ -47,6 +53,9 @@ Expression* ShuntingYarder::Shunt(){
 	stack <Expression*> expressions;
 	stack <char> operators;
 	for (i=0;i<toShunt.length();i++){
+		if (!isValidChar(toShunt[i])){
+			return nullptr;
+		}
 		if (toShunt[i] == ' '){
 			continue;
 		}
@@ -107,6 +116,11 @@ Expression* ShuntingYarder::Shunt(){
 		           expressions.pop();
 		           char op = operators.top();
 		           operators.pop();
+
+		           if (chooseOp(val1, val2, op) == nullptr)
+		           {
+		        	   return nullptr;
+		           }
 		           expressions.push(chooseOp(val1, val2, op));
 		     }
 		            // pop opening brace.
@@ -135,6 +149,10 @@ Expression* ShuntingYarder::Shunt(){
                 char op = operators.top();
                 operators.pop();
 
+                if (chooseOp(val1, val2, op) == nullptr)
+                {
+                	return nullptr;
+                }
                 expressions.push(chooseOp(val1, val2, op));
             }
             // Push current token to 'ops'.
@@ -153,6 +171,10 @@ Expression* ShuntingYarder::Shunt(){
         char op = operators.top();
         operators.pop();
 
+        if (chooseOp(val1, val2, op) == nullptr)
+        {
+          	return nullptr;
+        }
         expressions.push(chooseOp(val1, val2, op));
     }
 

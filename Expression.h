@@ -6,6 +6,9 @@
 #include "Command.h"
 #include <stdexcept>
 #include <map>
+#include <vector>
+
+using namespace std;
 
 class Command;
 class ShuntingYarder;

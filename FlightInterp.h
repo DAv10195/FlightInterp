@@ -46,7 +46,7 @@ class ConditionParser
 	public:
 		ConditionParser(Expression* e);
 		virtual double Parse();
-		virtual ~ConditionParser(){};
+		virtual ~ConditionParser();
 };
 //Parser class
 class Parser
@@ -55,7 +55,7 @@ class Parser
 	vector<string> input;
 
 	public:
-		Parser(ShuntingYarder* sy);
+		Parser();
 		virtual void setVecToParse(vector<string> &toParse);
 		virtual void Parse();
 		virtual ~Parser();
