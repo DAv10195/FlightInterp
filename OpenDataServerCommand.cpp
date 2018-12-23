@@ -4,28 +4,28 @@
 #include "FlightInterp.h"
 #include "sys/socket.h"
 #include <string.h>
-//#include "netdb.h"
 #include "netinet/in.h"
 #define SUCCESS 0
 #define FAIL 1
 #define READ_THREAD 1
 #define SOCKFD 0
 #define NSOCK 1
+#define R_THREAD 0
 //execute method
 double OpenDataServerCommand :: execute()
 {
 	Expression* e1 = nullptr, * e2 = nullptr;
-	int port = 0, hz = 0,clilen = 0;
-	threadParams p;
+	int port = 0, hz = 0, clilen = 0;
+	threadParams* p = new threadParams();
 	//structs for storing the connection information.
 	struct sockaddr_in serv_adr,cli_adr;
-	struct hostent * server;
 	//case not enough params passed
 	if (this->ind == (this->params).size() - 1 || this->ind == (this->params).size() - 2)
 	{
 		cout << "invalid paramaters passed to openDataServer function" << endl;
 		return FAIL;
 	}
+	string param1 = this->params[this->ind + 1], param2 = this->params[this->ind + 2];
 	this->socketId[SOCKFD] = socket(AF_INET,SOCK_STREAM,0); // create new socket.
 	//case initialization went wrong.
 	if (this->socketId[SOCKFD] < 0)
@@ -37,13 +37,20 @@ double OpenDataServerCommand :: execute()
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = INADDR_ANY;
 	//handaling port
-	(this->sy)->SetExpToShunt(this->params[this->ind+1]);
+	param1 = assignVars(this->sTable, param1);
+	param2 = assignVars(this->sTable, param2);
+	if (param1 == "" || param2 == "")
+	{
+		cout << "invalid paramaters passed to openDataServer function" << endl;
+		return FAIL;
+	}
+	(this->sy)->SetExpToShunt(param1);
 	try
 	{
 		e1 = this->sy->Shunt();
 		if (e1 == nullptr)
 		{
-			cout << "invalid paramaters passed to openDataServer function"<<endl;
+			cout << "invalid paramaters passed to openDataServer function" << endl;
 			return FAIL;
 		}
 		port = e1->calculate();
@@ -57,7 +64,7 @@ double OpenDataServerCommand :: execute()
 	}
 	serv_adr.sin_port = htons(port); // initialize port.
 	//handaling hz
-	(this->sy)->SetExpToShunt(this->params[this->ind+2]);
+	(this->sy)->SetExpToShunt(param2);
 	try
 	{
 		e2 = this->sy->Shunt();
@@ -75,7 +82,6 @@ double OpenDataServerCommand :: execute()
 		cout << e.what() <<endl;
 		return FAIL;
 	}
-	//set the hz ????
 	//bind the socket with the address.
 	 if (bind(this->socketId[SOCKFD], (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 	 {
@@ -83,7 +89,11 @@ double OpenDataServerCommand :: execute()
 	      return FAIL;
 	 }
 	 //listen for connection.
-	 listen(socketId[SOCKFD],5);
+	 if (listen(socketId[SOCKFD],5) < 0)
+	 {
+		 cout << "Connection Error" << endl;
+		 return FAIL;
+	 }
 	 //handle the client address in order to establish connection.
 	 clilen = sizeof(cli_adr);
 	 // Accept actual connection from the client.
@@ -93,8 +103,18 @@ double OpenDataServerCommand :: execute()
 	     cout << "Connection Error" <<endl;
 	     return FAIL;
 	 }
-
-	return SUCCESS;
+	 //construct params to thread
+	 p->sTable = this->sTable;
+	 p->ifRun = this->ifRun;
+	 p->lock = (this->tAl)->lock;
+	 p->hz = hz;
+	 //start the thread and handle case of failure
+	 if (pthread_create(&((this->tAl)->threads[R_THREAD]), NULL, &readThread, (void*)p))
+	 {
+		 cout << "Threading Error" << endl;
+		 return FAIL;
+	 }
+	 return SUCCESS;
 }
 
 
