@@ -89,4 +89,43 @@ class PrintCommand : public Command
 		virtual ~PrintCommand(){};
 };
 
+class ConnectCommand : public Command
+{
+	public:
+		ConnectCommand() : Command(){}
+		virtual double execute();
+		virtual ~ConnectCommand(){};
+};
+
+class AssignCommand : public Command
+{
+	public:
+		AssignCommand() : Command(){}
+		virtual double execute();
+		virtual ~AssignCommand(){};
+};
+
+class VarCommand : public Command
+{
+	public:
+		VarCommand() : Command(){}
+		virtual double execute();
+		virtual ~VarCommand(){};
+};
+
+class BindCommand : public Command
+{
+	public:
+		BindCommand() : Command(){}
+		virtual double execute();
+		virtual ~BindCommand(){};
+};
+
+class SleepCommand : public Command
+{
+	public:
+		SleepCommand() : Command(){}
+		virtual double execute();
+		virtual ~SleepCommand(){};
+};
 #endif

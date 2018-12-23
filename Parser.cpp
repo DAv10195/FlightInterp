@@ -18,7 +18,7 @@ Command* createWhileCommand()
 
 Command* createIfCommand()
 {
-	return new IfCommand;
+	return new IfCommand();
 }
 
 Command* createExitCommand()
@@ -28,12 +28,37 @@ Command* createExitCommand()
 
 Command* createRunFromFileCommand()
 {
-	return new RunFromFileCommand;
+	return new RunFromFileCommand();
 }
 
 Command* createPrintCommand()
 {
-	return new PrintCommand;
+	return new PrintCommand();
+}
+
+Command* createConnectCommand()
+{
+	return new ConnectCommand();
+}
+
+Command* createVarCommand()
+{
+	return new VarCommand();
+}
+
+Command* createAssignCommand()
+{
+	return new AssignCommand();
+}
+
+Command* createBindCommand()
+{
+	return new BindCommand();
+}
+
+Command* createSleepCommand()
+{
+	return new SleepCommand();
 }
 //initialize command map
 void initCmdMap(map<string, Command*(*)(void)> &commands)
@@ -44,6 +69,11 @@ void initCmdMap(map<string, Command*(*)(void)> &commands)
 	commands["exit"] = &createExitCommand;
 	commands["run"] = &createRunFromFileCommand;
 	commands["print"] = &createPrintCommand;
+	commands["connect"] = &createConnectCommand;
+	commands["var"] = &createVarCommand;
+	commands["="] = &createAssignCommand;
+	commands["bind"] = &createBindCommand;
+	commands["sleep"] = &createSleepCommand;
 }
 //build conditioned command. An empty vector returned indicates failure.
 vector<Command*> buildCondCmd(ShuntingYarder* sy ,map<string, Command*(*)(void)> &cmd, vector<string> &input,

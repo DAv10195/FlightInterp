@@ -236,7 +236,7 @@ string assignVars(map<string, double>* st, string &s)
 				return "";
 			}
 			//assign value instead of the variable to the returned string.
-			val = (*st)[var];
+			val = st->at(var);
 			toRet += to_string(val);
 		}
 	}

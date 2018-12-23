@@ -5,6 +5,11 @@
 //execute method
 double PrintCommand :: execute()
 {
+	if (this->ind == (this->params).size() - 1)
+	{
+		cout << "no paramater passed to print function" << endl;
+		return FAIL;
+	}
 	string param = this->params[this->ind + 1];
 	string toPrint = "";
 	//case a string with "" and "" at the end was inputed.
