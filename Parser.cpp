@@ -77,7 +77,7 @@ void initCmdMap(map<string, Command*(*)(void)> &commands)
 }
 //build conditioned command. An empty vector returned indicates failure.
 vector<Command*> buildCondCmd(ShuntingYarder* sy ,map<string, Command*(*)(void)> &cmd, vector<string> &input,
-unsigned int &beginInd, unsigned int &endInd, map<string, double>* st)
+unsigned int &beginInd, unsigned int &endInd, map<string, double>* st, bool* ir, threadsAndLock* t, int* si)
 {
 	vector<Command*> toRet;
 	vector<Command*> tmp;
@@ -119,7 +119,7 @@ unsigned int &beginInd, unsigned int &endInd, map<string, double>* st)
 				{
 					k++;
 				}
-				tmp = buildCondCmd(sy, cmd, input, i, k, st);
+				tmp = buildCondCmd(sy, cmd, input, i, k, st, ir, t, si);
 				c->setCommands(tmp);
 				c->setCondPar(cp);
 				toRet.push_back(c);
@@ -130,6 +130,9 @@ unsigned int &beginInd, unsigned int &endInd, map<string, double>* st)
 				c = cmd[input[i]]();
 				c->setTable(st);
 				c->setInd(i);
+				c->setIfRun(ir);
+				c->setThreadsAndLock(t);
+				c->setSockId(si);
 				c->setParams(input);
 				c->setShuntingYarder(sy);
 				toRet.push_back(c);
@@ -139,8 +142,11 @@ unsigned int &beginInd, unsigned int &endInd, map<string, double>* st)
 	return toRet;
 }
 //constructor
-Parser :: Parser()
+Parser :: Parser(bool* ir, threadsAndLock* t, int* si)
 {
+	this->ifRun = ir;
+	this->tAl = t;
+	this->socketId = si;
 	this->Shunter = new ShuntingYarder();
 }
 //sets the vector to be Parsed (that returned from the Lexer object)
@@ -215,7 +221,7 @@ double Parser :: Parse(map<string, double>* sTable)
 					return FAIL;
 				}
 				//building the vector of commands inside the block
-				tmp = buildCondCmd(this->Shunter, commands, inp, i, j, sTable);
+				tmp = buildCondCmd(this->Shunter, commands, inp, i, j, sTable, this->ifRun, this->tAl, this->socketId);
 				c->setCommands(tmp);
 				c->setCondPar(cp);
 				i = j;
@@ -226,6 +232,9 @@ double Parser :: Parse(map<string, double>* sTable)
 				c->setTable(sTable);
 				c->setInd(i);
 				c->setParams(inp);
+				c->setIfRun(this->ifRun);
+				c->setThreadsAndLock(this->tAl);
+				c->setSockId(this->socketId);
 				c->setShuntingYarder(this->Shunter);
 			}
 		}

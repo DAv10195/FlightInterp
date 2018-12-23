@@ -7,8 +7,13 @@
 #include <vector>
 #include <string>
 #include <map>
+#include<pthread.h>
+#include<stdlib.h>
+#include<unistd.h>
 
 using namespace std;
+
+struct threadsAndLock;
 
 class ConditionParser;
 class ShuntingYarder;
@@ -28,9 +33,20 @@ class Command
 		map<string, double>* sTable;
 		ConditionParser* cp;
 		vector<Command*> commands;
+		bool* ifRun;
+		threadsAndLock* tAl;
+		int* socketId;
 
 	public:
-		Command() { this->ind = 0; this->sy = nullptr; this->cp = nullptr; this->sTable = nullptr; }
+		Command()
+		{
+			this->ind = 0;
+			this->sy = nullptr;
+			this->cp = nullptr; this->sTable = nullptr;
+			this->ifRun = nullptr;
+			this->tAl = nullptr;
+			this->socketId = nullptr;
+		}
 		virtual double execute() { return 0; };
 		virtual void setParams(vector<string> &p) { this->params = p; };
 		virtual void setShuntingYarder(ShuntingYarder* s) { this->sy = s; }
@@ -38,6 +54,9 @@ class Command
 		virtual void setTable(map<string, double>* m) { this->sTable = m; }
 		virtual void setCondPar(ConditionParser* c) { this->cp = c; }
 		virtual void setCommands(vector<Command*> &v) { this->commands = v; }
+		virtual void setIfRun(bool* ir) { this->ifRun = ir; }
+		virtual void setThreadsAndLock(threadsAndLock* t) { this->tAl = t; }
+		virtual void setSockId(int* idArr) { this->socketId = idArr; }
 		virtual ~Command(){};
 };
 //WhileCommand class

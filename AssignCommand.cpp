@@ -43,6 +43,7 @@ double AssignCommand :: execute()
 	{
 		(this->sy)->SetExpToShunt(src);
 		(*this->sTable)[trg] = ((this->sy)->Shunt())->calculate();
+
 	}
 	catch (std::runtime_error &e)
 	{

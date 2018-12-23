@@ -1,5 +1,6 @@
 //implementation of utility functions.
 #include "Utils.h"
+#include "FlightInterp.h"
 #include <fstream>
 #define COND_OPERANDS 3
 #define FIRST_OP 0
@@ -275,5 +276,17 @@ double execFromFile(map<string, double>* sTable, string &path, Lexer* l, Parser*
 		p->setVecToParse(toParse);
 		return p->Parse(sTable);
 	}
+}
+//thread responsible for reading data from simulator
+void* readThread(void* args)
+{
+
+	return NULL;
+}
+//thread responsible for writing data to the simulator.
+void* writeThread(void* args)
+{
+
+	return NULL;
 }
 

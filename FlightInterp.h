@@ -10,6 +10,21 @@
 #include <map>
 
 using namespace std;
+//parameters that will be passed to threads
+struct threadParams
+{
+	map<string, double>* sTable;
+	bool* ifRun;
+	pthread_mutex_t* lock;
+};
+typedef struct threadParams threadParams;
+//parameters that will be passed to threads
+struct threadsAndLock
+{
+	pthread_t* threads;
+	pthread_mutex_t* lock;
+};
+typedef struct threadsAndLock threadsAndLock;
 
 class Expression;
 class Lexer;
@@ -53,9 +68,12 @@ class Parser
 {
 	ShuntingYarder* Shunter;
 	vector<string> input;
+	bool* ifRun;
+	threadsAndLock* tAl;
+	int* socketId;
 
 	public:
-		Parser();
+		Parser(bool* ir, threadsAndLock* t, int* si);
 		virtual void setVecToParse(vector<string> &toParse);
 		virtual double Parse(map<string, double>* sTable);
 		virtual ~Parser();

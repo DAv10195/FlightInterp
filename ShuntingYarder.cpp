@@ -79,7 +79,7 @@ Expression* ShuntingYarder::Shunt(){
 			while (i<toShunt.size() && (toShunt[i] == '.' || isdigit(toShunt[i]))){
 				//exception if 2 dots in a raw.
 			    if(floatCheck > 1){
-			         throw runtime_error("Exception, cannot put 2 dots in a number.");
+			         return nullptr;
 			    }
 			    if (toShunt[i] == '.'){
 			    	floatCheck ++;
@@ -133,10 +133,10 @@ Expression* ShuntingYarder::Shunt(){
                 continue;
             }
             if((toShunt[i] == '/' || toShunt [i] == '*') && isAfterOp){
-                throw runtime_error("Syntax Error!");
+                return nullptr;
             }
             if(expressions.empty() && (toShunt[i] == '/' || toShunt [i] == '*')){
-                throw runtime_error("Syntax Error!");
+                return nullptr;
             }
             while (!operators.empty() && precedence(operators.top())
                                   >= precedence(toShunt[i])) {

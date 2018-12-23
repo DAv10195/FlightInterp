@@ -22,5 +22,9 @@ vector<string> ifCond(map<string, double>* st,string &s);
 string assignVars(map<string, double>* st, string &s);
 //executes the script written in the inputed file path
 double execFromFile(map<string, double>* sTable, string &path, Lexer* l, Parser* p);
+//thread responsible for reading data from simulator
+void* readThread(void* args);
+//thread responsible for writing data to the simulator.
+void* writeThread(void* args);
 
 #endif
