@@ -36,6 +36,7 @@ class Command
 		ConditionParser* cp;
 		vector<Command*> commands;
 		bool* ifRun;
+		bool* ifCreated;
 		threadsAndLock* tAl;
 		int* socketId;
 
@@ -49,6 +50,7 @@ class Command
 			this->refs = nullptr;
 			this->revRefs = nullptr;
 			this->ifRun = nullptr;
+			this->ifCreated = nullptr;
 			this->tAl = nullptr;
 			this->socketId = nullptr;
 		}
@@ -62,6 +64,7 @@ class Command
 		virtual void setCondPar(ConditionParser* c) { this->cp = c; }
 		virtual void setCommands(vector<Command*> &v) { this->commands = v; }
 		virtual void setIfRun(bool* ir) { this->ifRun = ir; }
+		virtual void setIfCreated (bool* ic) { this->ifCreated = ic; }
 		virtual void setThreadsAndLock(threadsAndLock* t) { this->tAl = t; }
 		virtual void setSockId(int* idArr) { this->socketId = idArr; }
 		virtual ~Command(){};

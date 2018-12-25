@@ -37,8 +37,6 @@ double PrintCommand :: execute()
 		pthread_mutex_unlock(lock);
 	}
 
-
-
 	return SUCCESS;
 }
 

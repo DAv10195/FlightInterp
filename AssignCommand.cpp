@@ -85,9 +85,11 @@ double AssignCommand :: execute()
 	//case unbinded variable assignment
 	if (path == "")
 	{
+		pthread_mutex_unlock(lock);
 		return SUCCESS;
 	}
 	pthread_mutex_unlock(lock);
+
 	//send message to FlightGear
 	bzero(buffer, BUFFER_SIZE);
 	string message = "set " + path + " " + to_string(val) + " \r\n";

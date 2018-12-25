@@ -12,6 +12,8 @@
 #define IP_NUMS 4
 #define DOT_NUM 3
 #define MAX_IP 255
+#define SECOND 1
+#define CONNECTION_TRIES 10
 //check if valid i.p.
 bool ifValidIP(string &s)
 {	//i.p. can't start with a dot
@@ -125,16 +127,15 @@ double ConnectCommand :: execute()
 	serv_adr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&serv_adr.sin_addr.s_addr, server->h_length);
 	serv_adr.sin_port = htons(port);
-	if (connect(this->socketId[SOCKFD], (struct sockaddr*)&serv_adr, sizeof(serv_adr)) < 0)
-	{ //connect to the socket.
-		perror("Error: ");
-		cout << "Connection error" << endl;
-		return FAIL;
+	//try connecting and if not failed
+	for (int i = 0; i < CONNECTION_TRIES; i++)
+	{
+		if (connect(this->socketId[SOCKFD], (struct sockaddr*)&serv_adr, sizeof(serv_adr)) >= 0)
+		{
+			return SUCCESS;
+		}
+		sleep(SECOND);
 	}
-	return 0;
+	cout << "Connection error" << endl;
+	return FAIL;
 }
-
-
-
-
-

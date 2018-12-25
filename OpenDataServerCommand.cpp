@@ -119,7 +119,7 @@ double OpenDataServerCommand :: execute()
 		 cout << "Threading Error" << endl;
 		 return FAIL;
 	 }
-
+	 *this->ifCreated = true;
 	 return SUCCESS;
 }
 

@@ -7,7 +7,7 @@ double RunFromFileCommand :: execute()
 {
 	double retCmd = 0;
 	Lexer* lexer = new Lexer();
-	Parser* parser = new Parser(this->ifRun, this->tAl, this->socketId);	//accessing the file path that should be inputed next to the "run" command
+	Parser* parser = new Parser(this->ifCreated ,this->ifRun, this->tAl, this->socketId);	//accessing the file path that should be inputed next to the "run" command
 	string path = this->params[this->ind + 1];
 
 	retCmd = execFromFile(this->sTable, this->refs, this->revRefs, path, lexer, parser);

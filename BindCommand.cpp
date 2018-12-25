@@ -24,10 +24,12 @@ double BindCommand :: execute()
 	}
 
 	pthread_mutex_lock(lock);
+
 	//path is at index + 1, variable is at index - 2 ('=' in the middle)
 	(*this->refs)[path] = this->params[this->ind - 2];
 
 	pthread_mutex_unlock(lock);
+
 	//bind in the reverse map
 	(*this->revRefs)[this->params[this->ind - 2]] = path;
 

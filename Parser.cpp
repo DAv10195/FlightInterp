@@ -133,6 +133,7 @@ vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<stri
 				c->setRevRefs(revRefs);
 				c->setInd(i);
 				c->setIfRun(this->ifRun);
+				c->setIfCreated(this->ifCreated);
 				c->setThreadsAndLock(this->tAl);
 				c->setSockId(this->socketId);
 				c->setParams(this->input);
@@ -144,8 +145,9 @@ vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<stri
 	return toRet;
 }
 //constructor
-Parser :: Parser(bool* ir, threadsAndLock* t, int* si)
+Parser :: Parser(bool* ic ,bool* ir, threadsAndLock* t, int* si)
 {
+	this->ifCreated = ic;
 	this->ifRun = ir;
 	this->tAl = t;
 	this->socketId = si;
@@ -240,6 +242,7 @@ double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, m
 				c->setInd(i);
 				c->setParams(this->input);
 				c->setIfRun(this->ifRun);
+				c->setIfCreated(this->ifCreated);
 				c->setThreadsAndLock(this->tAl);
 				c->setSockId(this->socketId);
 				c->setShuntingYarder(this->Shunter);

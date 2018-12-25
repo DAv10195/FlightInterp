@@ -72,6 +72,7 @@ class Parser
 	ShuntingYarder* Shunter;
 	vector<string> input;
 	bool* ifRun;
+	bool* ifCreated;
 	threadsAndLock* tAl;
 	int* socketId;
 
@@ -79,7 +80,7 @@ class Parser
 			map<string, string>* refs, map<string, string>* revRefs, map<string, Command*(*)(void)> &commands);
 
 	public:
-		Parser(bool* ir, threadsAndLock* t, int* si);
+		Parser(bool* ic ,bool* ir, threadsAndLock* t, int* si);
 		virtual void setVecToParse(vector<string> &toParse);
 		virtual double Parse(map<string, double>* sTable, map<string, string>* refs, map<string, string>* revRefs);
 		virtual ~Parser();

@@ -8,6 +8,7 @@
 #define EXIT 2
 #define NUM_SOCK 3
 #define NUM_BOOLS 2
+#define SECOND 1
 //runs the whole deal
 void run(int argc, char* argv[])
 {
@@ -30,11 +31,12 @@ void run(int argc, char* argv[])
 	tAl.thread = &thread;
 	tAl.lock = &lock;
 	bool ifRun = true;
+	bool ifThreadCreated = false;
 	map<string, double> sTable;
 	map<string, string> refs;
 	map<string, string> revRefs;
 	Lexer* lexer = new Lexer();
-	Parser* parser = new Parser(&ifRun, &tAl, sockArr);
+	Parser* parser = new Parser(&ifThreadCreated ,&ifRun, &tAl, sockArr);
 	i = 1;
 	double cmdRet = 0;
 	string path = "";
@@ -66,14 +68,18 @@ void run(int argc, char* argv[])
 		ifRun = false;
 
 		pthread_mutex_unlock(&lock);
-
-		pthread_join(thread, NULL);
+		if (ifThreadCreated)
+		{
+			pthread_join(thread, NULL);
+		}
 		pthread_mutex_destroy(&lock);
 		i = 0;
 		for (; i < NUM_SOCK; i++)
 		{
 			if (sockArr[i] >= 0)
 			{
+				shutdown(sockArr[i], SHUT_RDWR);
+				sleep(SECOND);
 				close(sockArr[i]);
 			}
 		}
@@ -96,14 +102,18 @@ void run(int argc, char* argv[])
 	ifRun = false;
 
 	pthread_mutex_unlock(&lock);
-
-	pthread_join(thread, NULL);
+	if (ifThreadCreated)
+	{
+		pthread_join(thread, NULL);
+	}
 	pthread_mutex_destroy(&lock);
 	i = 0;
 	for (; i < NUM_SOCK; i++)
 	{
 		if (sockArr[i] >= 0)
 		{
+			shutdown(sockArr[i], SHUT_RDWR);
+			sleep(SECOND);
 			close(sockArr[i]);
 		}
 	}

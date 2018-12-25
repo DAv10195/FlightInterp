@@ -217,7 +217,7 @@ string assignVars(pthread_mutex_t* lock, map<string, double>* st, string &s)
 
 	for (; i < size; i++)
 	{	//a digit or an operator is good
-		if (isOper(s.at(i)) || isDig(s.at(i)) || s.at(i) == ' ' || s.at(i) == '\t' || s.at(i) == '\r')
+		if (isOper(s.at(i)) || isDig(s.at(i)) || s.at(i) == ' ' || s.at(i) == '\t' || s.at(i) == '\r' || s.at(i) == '.')
 		{	//ignore whitespaces
 			if (s.at(i) == ' ' || s.at(i) == '\t' || s.at(i) == '\r')
 			{
@@ -241,15 +241,18 @@ string assignVars(pthread_mutex_t* lock, map<string, double>* st, string &s)
 			i--;
 
 			pthread_mutex_lock(lock);
+
 			//case variable hasn't been declared;
 			if (st->find(var) == st->end())
 			{
+				pthread_mutex_unlock(lock);
 				return "";
 			}
 			//assign value instead of the variable to the returned string.
 			val = st->at(var);
 
 			pthread_mutex_unlock(lock);
+
 			var = "";
 			toRet += to_string(val);
 		}
@@ -327,10 +330,9 @@ void* readThread(void* args)
 	map<string, double>* sTable = p->sTable;
 	int sockfd = p->sockfd;
 	bool run = *(p->ifRun);
-	int hz = p->hz;
-	int status = 0, i = 0, j = 0;
+	int status = 0, i = 0, j = 0, size = 0;
 	char buffer[BUFFER_SIZE];
-	string val = "", ref = "", var = "";
+	string val = "", ref = "", var = "", leftovers = "", message = "";
 	string pathes[PATHES];
 	double vals[PATHES];	//initialize values to 0
 	for (; i < PATHES; i++)
@@ -352,26 +354,27 @@ void* readThread(void* args)
 			return NULL;
 		}
 		//store data received
-		while (j < PATHES && buffer[i])
+		while (buffer[i] && buffer[i] != '\n')
 		{
-			if (isDig(buffer[i]) || buffer[i] == '.')
+			message.push_back(buffer[i]);
+			i++;
+		}
+		size = message.size();
+		while (j < PATHES && i < size)
+		{
+			while (i < size && (isDig(message.at(i)) || message.at(i) == '.'))
 			{
-				val.push_back(buffer[i]);
-				i++;
-			}	//a ',' or '\n
-			else
-			{
-				if (val != "")
-				{
-					vals[j] = stod(val);
-				}
-				val = "";
-				j++;
+				val.push_back(message.at(i));
 				i++;
 			}
+			vals[j] = stod(val);
+			val = "";
+			i++;
+			j++;
 		}
-		i = 0;
 		j = 0;
+		i = 0;
+		message = "";
 		//update sTable according to data received
 		pthread_mutex_lock(lock);
 
@@ -396,7 +399,6 @@ void* readThread(void* args)
 
 		pthread_mutex_unlock(lock);
 
-		//sleep((unsigned int)1 / hz);
 	}
 
 	delete p;
