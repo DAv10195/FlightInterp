@@ -2,10 +2,13 @@
 #include "Utils.h"
 #include "FlightInterp.h"
 #include <fstream>
+#include <string.h>
 #define COND_OPERANDS 3
 #define FIRST_OP 0
 #define SECOND_OP 2
 #define FAIL 1
+#define BUFFER_SIZE 1024
+#define PATHES 23
 
 //decides if the inputed character is a valid operator.
 bool isOper(char &c)
@@ -72,7 +75,7 @@ bool isNum(string &s)
 	return true;
 }
 //an Empty vector indicates an invalid condition. otherwise, the condition is valid.
-vector<string> ifCond(map<string, double>* st, string &s)
+vector<string> ifCond(pthread_mutex_t* lock, map<string, double>* st,string &s)
 {
 	char c = 0;
 	unsigned int i = 0;
@@ -183,6 +186,9 @@ vector<string> ifCond(map<string, double>* st, string &s)
 	{
 		toRet.clear();
 	}
+
+	pthread_mutex_lock(lock);
+
 	//case first operand is not a number and an undeclared variable
 	if (!isNum(toRet[FIRST_OP]) && st->find(toRet[FIRST_OP]) == st->end())
 	{
@@ -196,10 +202,12 @@ vector<string> ifCond(map<string, double>* st, string &s)
 		toRet.clear();
 	}
 
+	pthread_mutex_unlock(lock);
+
 	return toRet;
 }
 //assigns value to variables in the string. if a variable isn't declared returns empty string.
-string assignVars(map<string, double>* st, string &s)
+string assignVars(pthread_mutex_t* lock, map<string, double>* st, string &s)
 {
 	string toRet = "";
 	string var = "";
@@ -220,7 +228,7 @@ string assignVars(map<string, double>* st, string &s)
 		}
 		else
 		{	//a variable has been encountered
-			while (i < size && !isOper(s.at(i)) && !isDig(s.at(i)))
+			while (i < size && !isOper(s.at(i)))
 			{	//build the name of the variable, ignoring whitespaces
 				if (s.at(i) == ' ' || s.at(i) == '\t' || s.at(i) == '\r')
 				{
@@ -231,6 +239,8 @@ string assignVars(map<string, double>* st, string &s)
 				i++;
 			}
 			i--;
+
+			pthread_mutex_lock(lock);
 			//case variable hasn't been declared;
 			if (st->find(var) == st->end())
 			{
@@ -238,6 +248,9 @@ string assignVars(map<string, double>* st, string &s)
 			}
 			//assign value instead of the variable to the returned string.
 			val = st->at(var);
+
+			pthread_mutex_unlock(lock);
+			var = "";
 			toRet += to_string(val);
 		}
 	}
@@ -245,7 +258,8 @@ string assignVars(map<string, double>* st, string &s)
 	return toRet;
 }
 //executes the script written in the inputed file path
-double execFromFile(map<string, double>* sTable, string &path, Lexer* l, Parser* p)
+double execFromFile(map<string, double>* sTable, map<string, string>* refs, map<string, string>* revRefs,
+string &path, Lexer* l, Parser* p)
 {
 	string line = "";
 	vector<string> toParse;
@@ -274,19 +288,117 @@ double execFromFile(map<string, double>* sTable, string &path, Lexer* l, Parser*
 		}
 		f.close();
 		p->setVecToParse(toParse);
-		return p->Parse(sTable);
+		return p->Parse(sTable, refs, revRefs);
 	}
+}
+//initialize path array for readThread
+void initPathes(string* arr)
+{
+	arr[0] = "/instrumentation/airspeed-indicator/indicated-speed-kt";
+	arr[1] = "/instrumentation/altimeter/indicated-altitude-ft";
+	arr[2] = "/instrumentation/altimeter/pressure-alt-ft";
+	arr[3] = "/instrumentation/attitude-indicator/indicated-pitch-deg";
+	arr[4] = "/instrumentation/attitude-indicator/indicated-roll-deg";
+	arr[5] = "/instrumentation/attitude-indicator/internal-pitch-deg";
+	arr[6] = "/instrumentation/attitude-indicator/internal-roll-deg";
+	arr[7] = "/instrumentation/encoder/indicated-altitude-ft";
+	arr[8] = "/instrumentation/encoder/pressure-alt-ft";
+	arr[9] = "/instrumentation/gps/indicated-altitude-ft";
+	arr[10] = "/instrumentation/gps/indicated-ground-speed-kt";
+	arr[11] = "/instrumentation/gps/indicated-vertical-speed";
+	arr[12] = "/instrumentation/heading-indicator/indicated-heading-deg";
+	arr[13] = "/instrumentation/magnetic-compass/indicated-heading-deg";
+	arr[14] = "/instrumentation/slip-skid-ball/indicated-slip-skid";
+	arr[15] = "/instrumentation/turn-indicator/indicated-turn-rate";
+	arr[16] = "/instrumentation/vertical-speed-indicator/indicated-speed-fpm";
+	arr[17] = "/controls/flight/aileron";
+	arr[18] = "/controls/flight/elevator";
+	arr[19] = "/controls/flight/rudder";
+	arr[20] = "/controls/flight/flaps";
+	arr[21] = "/controls/engines/current-engine/throttle";
+	arr[PATHES - 1] = "/engines/engine/rpm";
 }
 //thread responsible for reading data from simulator
 void* readThread(void* args)
-{
+{	//extracting paramaters
+	threadParams* p = (threadParams*) args;
+	pthread_mutex_t* lock = p->lock;
+	map<string, string>* refs = p->refs;
+	map<string, double>* sTable = p->sTable;
+	int sockfd = p->sockfd;
+	bool run = *(p->ifRun);
+	int hz = p->hz;
+	int status = 0, i = 0, j = 0;
+	char buffer[BUFFER_SIZE];
+	string val = "", ref = "", var = "";
+	string pathes[PATHES];
+	double vals[PATHES];	//initialize values to 0
+	for (; i < PATHES; i++)
+	{
+		vals[i] = 0;
+	}
+	i = 0;
+	initPathes(pathes);
 
+	while (run)
+	{	//read data
+		bzero(buffer, BUFFER_SIZE);
+		status = read(sockfd, buffer, BUFFER_SIZE - 1);
+		//case reading failed
+		if (status < 0)
+		{
+			cout << "Error reading data from FlightGear" << endl;
+			delete p;
+			return NULL;
+		}
+		//store data received
+		while (j < PATHES && buffer[i])
+		{
+			if (isDig(buffer[i]) || buffer[i] == '.')
+			{
+				val.push_back(buffer[i]);
+				i++;
+			}	//a ',' or '\n
+			else
+			{
+				if (val != "")
+				{
+					vals[j] = stod(val);
+				}
+				val = "";
+				j++;
+				i++;
+			}
+		}
+		i = 0;
+		j = 0;
+		//update sTable according to data received
+		pthread_mutex_lock(lock);
+
+		while (j < PATHES)
+		{
+			ref = pathes[j];
+			while (refs->find(ref) != refs->end())
+			{
+				var = (*refs)[ref];
+				(*sTable)[var] = vals[j];
+				ref = var;
+			}
+			j++;
+		}
+		j = 0;
+
+		pthread_mutex_unlock(lock);
+		//check if still needed to run
+		pthread_mutex_lock(lock);
+
+		run = *(p->ifRun);
+
+		pthread_mutex_unlock(lock);
+
+		//sleep((unsigned int)1 / hz);
+	}
+
+	delete p;
 	return NULL;
 }
-//thread responsible for writing data to the simulator.
-void* writeThread(void* args)
-{
-
-	return NULL;
-}
-

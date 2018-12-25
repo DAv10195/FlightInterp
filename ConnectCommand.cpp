@@ -8,7 +8,6 @@
 #define SUCCESS 0
 #define FAIL 1
 #define SOCKFD 2
-#define NSOCK 3
 #define W_THREAD 1
 #define IP_NUMS 4
 #define DOT_NUM 3
@@ -82,7 +81,7 @@ double ConnectCommand :: execute()
 	int port = 0;
 	Expression* e1 = nullptr;
 	//handle the port, it could be an expression.
-	portStr = assignVars(this->sTable ,portStr);
+	portStr = assignVars((this->tAl)->lock, this->sTable ,portStr);
 	if (portStr == "")
 	{
 		cout << "invalid paramaters passed to connect function" << endl;
@@ -128,10 +127,10 @@ double ConnectCommand :: execute()
 	serv_adr.sin_port = htons(port);
 	if (connect(this->socketId[SOCKFD], (struct sockaddr*)&serv_adr, sizeof(serv_adr)) < 0)
 	{ //connect to the socket.
+		perror("Error: ");
 		cout << "Connection error" << endl;
 		return FAIL;
 	}
-
 	return 0;
 }
 

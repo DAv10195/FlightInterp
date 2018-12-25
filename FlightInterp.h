@@ -14,15 +14,17 @@ using namespace std;
 struct threadParams
 {
 	map<string, double>* sTable;
+	map<string, string>* refs;
 	bool* ifRun;
 	pthread_mutex_t* lock;
+	int sockfd;
 	int hz;
 };
 typedef struct threadParams threadParams;
 //parameters that will be passed to threads
 struct threadsAndLock
 {
-	pthread_t* threads;
+	pthread_t* thread;
 	pthread_mutex_t* lock;
 };
 typedef struct threadsAndLock threadsAndLock;
@@ -73,10 +75,13 @@ class Parser
 	threadsAndLock* tAl;
 	int* socketId;
 
+	virtual vector<Command*> buildCondCmd(unsigned int i, unsigned int j, map<string, double>* sTable,
+			map<string, string>* refs, map<string, string>* revRefs, map<string, Command*(*)(void)> &commands);
+
 	public:
 		Parser(bool* ir, threadsAndLock* t, int* si);
 		virtual void setVecToParse(vector<string> &toParse);
-		virtual double Parse(map<string, double>* sTable);
+		virtual double Parse(map<string, double>* sTable, map<string, string>* refs, map<string, string>* revRefs);
 		virtual ~Parser();
 };
 

@@ -116,12 +116,13 @@ class CommandExpression : public Expression
 
 class BooleanExpression : public Expression
 {
+	pthread_mutex_t* lock;
 	map<string, double>* sTable;
 	vector<string> toCalc;
 	ShuntingYarder* Shunter;
 
 	public:
-		BooleanExpression(map<string, double>* m, vector<string> &v, ShuntingYarder* sy);
+		BooleanExpression(pthread_mutex_t* lock ,map<string, double>* m, vector<string> &v, ShuntingYarder* sy);
 		double calculate();
 		~BooleanExpression(){};
 };

@@ -25,12 +25,14 @@ class CreateVarCommand;
 class BindCommand;
 //Command interface
 class Command
-{
+{	//various commands need various tools... will be set according to the specific command
 	protected:
 		vector<string> params;
 		unsigned int ind;
 		ShuntingYarder* sy;
 		map<string, double>* sTable;
+		map<string, string>* refs;
+		map<string, string>* revRefs;
 		ConditionParser* cp;
 		vector<Command*> commands;
 		bool* ifRun;
@@ -42,7 +44,10 @@ class Command
 		{
 			this->ind = 0;
 			this->sy = nullptr;
-			this->cp = nullptr; this->sTable = nullptr;
+			this->cp = nullptr;
+			this->sTable = nullptr;
+			this->refs = nullptr;
+			this->revRefs = nullptr;
 			this->ifRun = nullptr;
 			this->tAl = nullptr;
 			this->socketId = nullptr;
@@ -52,6 +57,8 @@ class Command
 		virtual void setShuntingYarder(ShuntingYarder* s) { this->sy = s; }
 		virtual void setInd(unsigned int &i) { this->ind = i; };
 		virtual void setTable(map<string, double>* m) { this->sTable = m; }
+		virtual void setRefs(map<string, string>* r) { this->refs = r; }
+		virtual void setRevRefs(map<string, string>* rR) { this->revRefs = rR; }
 		virtual void setCondPar(ConditionParser* c) { this->cp = c; }
 		virtual void setCommands(vector<Command*> &v) { this->commands = v; }
 		virtual void setIfRun(bool* ir) { this->ifRun = ir; }

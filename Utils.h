@@ -17,14 +17,13 @@ bool isDig(char &c);
 //check if inputed string is a number.
 bool isNum(string &s);
 //check if inputed string is a valid condition.
-vector<string> ifCond(map<string, double>* st,string &s);
+vector<string> ifCond(pthread_mutex_t* lock, map<string, double>* st,string &s);
 //assigns value to variables in the string. if a variable isn't declared returns empty string.
-string assignVars(map<string, double>* st, string &s);
+string assignVars(pthread_mutex_t* lock, map<string, double>* st, string &s);
 //executes the script written in the inputed file path
-double execFromFile(map<string, double>* sTable, string &path, Lexer* l, Parser* p);
+double execFromFile(map<string, double>* sTable, map<string, string>* refs, map<string, string>* revRefs,
+string &path, Lexer* l, Parser* p);
 //thread responsible for reading data from simulator
 void* readThread(void* args);
-//thread responsible for writing data to the simulator.
-void* writeThread(void* args);
 
 #endif

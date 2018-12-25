@@ -76,37 +76,37 @@ void initCmdMap(map<string, Command*(*)(void)> &commands)
 	commands["sleep"] = &createSleepCommand;
 }
 //build conditioned command. An empty vector returned indicates failure.
-vector<Command*> buildCondCmd(ShuntingYarder* sy ,map<string, Command*(*)(void)> &cmd, vector<string> &input,
-unsigned int &beginInd, unsigned int &endInd, map<string, double>* st, bool* ir, threadsAndLock* t, int* si)
+vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<string, double>* sTable,
+		map<string, string>* refs, map<string, string>* revRefs, map<string, Command*(*)(void)> &commands)
 {
 	vector<Command*> toRet;
 	vector<Command*> tmp;
-	unsigned int i = beginInd, j = endInd, k = 0;
+	unsigned int k = 0;
 	Command* c = nullptr;
 	Expression* e = nullptr;
 	vector<string> cond;
 
 	for (; i < j; i++)
 	{
-		if (cmd.find(input[i]) != cmd.end())
+		if (commands.find(this->input[i]) != commands.end())
 		{
-			if (input[i] == "while" || input[i] == "if")
+			if (this->input[i] == "while" || this->input[i] == "if")
 			{
-				c = cmd[input[i]]();
+				c = commands[input[i]]();
 				i++;
-				cond = ifCond(st, input[i]);
+				cond = ifCond((this->tAl)->lock, sTable, this->input[i]);
 				if (!cond.size())
 				{	//case the condition is invalid...
-					cout << "Invalid condition given to " << input[i - 1] << " command" << endl;
+					cout << "Invalid condition given to " << this->input[i - 1] << " command" << endl;
 					toRet.clear();
 					return toRet;
 				}
 				//building the boolean Expression and Condition parser
-				e = new BooleanExpression(st, cond, sy);
+				e = new BooleanExpression((this->tAl)->lock ,sTable, cond, this->Shunter);
 				ConditionParser* cp = new ConditionParser(e);
 				//case '{' is'nt in place
 				i++;
-				if (input[i] != "{")
+				if (this->input[i] != "{")
 				{
 					cout << "'{' not in the right place" << endl;
 					toRet.clear();
@@ -115,11 +115,11 @@ unsigned int &beginInd, unsigned int &endInd, map<string, double>* st, bool* ir,
 				//finding the '}'
 				i++;
 				k = i;
-				while (input[k] != "}")
+				while (this->input[k] != "}")
 				{
 					k++;
 				}
-				tmp = buildCondCmd(sy, cmd, input, i, k, st, ir, t, si);
+				tmp = this->buildCondCmd(i, j, sTable, refs, revRefs, commands);
 				c->setCommands(tmp);
 				c->setCondPar(cp);
 				toRet.push_back(c);
@@ -127,14 +127,16 @@ unsigned int &beginInd, unsigned int &endInd, map<string, double>* st, bool* ir,
 			}	//other command
 			else
 			{	//build the command.
-				c = cmd[input[i]]();
-				c->setTable(st);
+				c = commands[this->input[i]]();
+				c->setTable(sTable);
+				c->setRefs(refs);
+				c->setRevRefs(revRefs);
 				c->setInd(i);
-				c->setIfRun(ir);
-				c->setThreadsAndLock(t);
-				c->setSockId(si);
-				c->setParams(input);
-				c->setShuntingYarder(sy);
+				c->setIfRun(this->ifRun);
+				c->setThreadsAndLock(this->tAl);
+				c->setSockId(this->socketId);
+				c->setParams(this->input);
+				c->setShuntingYarder(this->Shunter);
 				toRet.push_back(c);
 			}
 		}
@@ -155,41 +157,40 @@ void Parser :: setVecToParse(vector<string> &toParse)
 	this->input = toParse;
 }
 //Parses the vector of the lexed input
-double Parser :: Parse(map<string, double>* sTable)
+double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, map<string, string>* revRefs)
 {
 	map<string, Command*(*)(void)> commands;
 	Command* c = nullptr;
 	Expression* e = nullptr;
-	vector<string> inp = this->input;
 	vector<string> cond;
 	vector<Command*> tmp;
 	double commandRet = 0;
 	unsigned int i = 0, j = 0, counter = 0, cmdCount = 0;
-	unsigned int size = inp.size();
+	unsigned int size = this->input.size();
 	bool flag = false;
 
 	initCmdMap(commands);
 
 	for (; i < size; i++)
 	{	//building a vector of command expressions to be executed
-		if (commands.find(inp[i]) != commands.end())
+		if (commands.find(this->input[i]) != commands.end())
 		{	//case while or if command
-			if (inp[i] == "while" || inp[i] == "if")
+			if (this->input[i] == "while" || this->input[i] == "if")
 			{
-				c = commands[inp[i]]();
+				c = commands[this->input[i]]();
 				i++;
-				cond = ifCond(sTable, inp[i]);
+				cond = ifCond((this->tAl)->lock, sTable, this->input[i]);
 				if (!cond.size())
 				{	//case the condition is invalid...
-					cout << "Invalid condition given to " << inp[i - 1] << " command" << endl;
+					cout << "Invalid condition given to " << this->input[i - 1] << " command" << endl;
 					return FAIL;
 				}
 				//building the boolean Expression and Condition parser
-				e = new BooleanExpression(sTable, cond, this->Shunter);
+				e = new BooleanExpression((this->tAl)->lock ,sTable, cond, this->Shunter);
 				ConditionParser* cp = new ConditionParser(e);
 				//case no '{' to open the block
 				i++;
-				if (inp[i] != "{")
+				if (this->input[i] != "{")
 				{
 					cout << "missing '{'" << endl;
 					return FAIL;
@@ -199,15 +200,15 @@ double Parser :: Parse(map<string, double>* sTable)
 				j = i;
 				for (; j < size; j++)
 				{	//case we saw another conditioned command with a block, we'll count openers and closers
-					if (inp[i] == "{")
+					if (this->input[i] == "{")
 					{
 						counter++;
 					}
-					if (inp[j] == "}" && counter)
+					if (this->input[j] == "}" && counter)
 					{
 						counter--;
 					}	//case a valid number of openers and closers is present
-					if (inp[j] == "}" && !counter)
+					if (this->input[j] == "}" && !counter)
 					{
 						flag = true;
 						break;
@@ -221,17 +222,23 @@ double Parser :: Parse(map<string, double>* sTable)
 					return FAIL;
 				}
 				//building the vector of commands inside the block
-				tmp = buildCondCmd(this->Shunter, commands, inp, i, j, sTable, this->ifRun, this->tAl, this->socketId);
+				tmp = this->buildCondCmd(i, j, sTable, refs, revRefs, commands);
+				if (!tmp.size())
+				{
+					return FAIL;
+				}
 				c->setCommands(tmp);
 				c->setCondPar(cp);
 				i = j;
 			}
 			else
 			{	//build command
-				c = commands[inp[i]]();
+				c = commands[this->input[i]]();
 				c->setTable(sTable);
+				c->setRefs(refs);
+				c->setRevRefs(revRefs);
 				c->setInd(i);
-				c->setParams(inp);
+				c->setParams(this->input);
 				c->setIfRun(this->ifRun);
 				c->setThreadsAndLock(this->tAl);
 				c->setSockId(this->socketId);

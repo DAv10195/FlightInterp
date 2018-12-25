@@ -11,6 +11,7 @@
 #define SOCKFD 0
 #define NSOCK 1
 #define R_THREAD 0
+#define MAX_CONNECTIONS 5
 //execute method
 double OpenDataServerCommand :: execute()
 {
@@ -37,8 +38,8 @@ double OpenDataServerCommand :: execute()
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = INADDR_ANY;
 	//handaling port
-	param1 = assignVars(this->sTable, param1);
-	param2 = assignVars(this->sTable, param2);
+	param1 = assignVars((this->tAl)->lock, this->sTable, param1);
+	param2 = assignVars((this->tAl)->lock, this->sTable, param2);
 	if (param1 == "" || param2 == "")
 	{
 		cout << "invalid paramaters passed to openDataServer function" << endl;
@@ -85,11 +86,12 @@ double OpenDataServerCommand :: execute()
 	//bind the socket with the address.
 	 if (bind(this->socketId[SOCKFD], (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 	 {
-	      cout << "Connection Error: binding failed." <<endl;
+	      cout << "Connection Error: binding failed." << endl;
+	      cout << "Try lunching FlightGear with the appropriate settings after lunching this interpreter" << endl;
 	      return FAIL;
 	 }
 	 //listen for connection.
-	 if (listen(socketId[SOCKFD],5) < 0)
+	 if (listen(socketId[SOCKFD],MAX_CONNECTIONS) < 0)
 	 {
 		 cout << "Connection Error" << endl;
 		 return FAIL;
@@ -100,20 +102,24 @@ double OpenDataServerCommand :: execute()
 	 this->socketId[NSOCK] = accept(this->socketId[SOCKFD], (struct sockaddr *)&cli_adr, (socklen_t*)&clilen);
 	 if (this->socketId[NSOCK] < 0)
 	 {
-	     cout << "Connection Error" <<endl;
+	     cout << "Connection Error" << endl;
 	     return FAIL;
 	 }
 	 //construct params to thread
 	 p->sTable = this->sTable;
+	 p->refs = this->refs;
 	 p->ifRun = this->ifRun;
 	 p->lock = (this->tAl)->lock;
+	 p->sockfd = this->socketId[NSOCK];
 	 p->hz = hz;
 	 //start the thread and handle case of failure
-	 if (pthread_create(&((this->tAl)->threads[R_THREAD]), NULL, &readThread, (void*)p))
+	 if (pthread_create((this->tAl)->thread, NULL, &readThread, (void*)p))
 	 {
+		 delete p;
 		 cout << "Threading Error" << endl;
 		 return FAIL;
 	 }
+
 	 return SUCCESS;
 }
 

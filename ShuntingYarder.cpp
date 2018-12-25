@@ -31,7 +31,7 @@ Expression* chooseOp(Expression *leftVal, Expression *rightVal, char &op){
 }
 
 	int isValidChar(char c){
-		if (c == '+' || c== '-' || c == '*' || c== '/' || isdigit(c) ){
+		if (c == '+' || c== '-' || c == '*' || c== '/' || isdigit(c) || c == '(' || c== ')' ){
 			return true;
 		}
 		return false;
@@ -39,7 +39,7 @@ Expression* chooseOp(Expression *leftVal, Expression *rightVal, char &op){
 	//initialize empty string.
 
 ShuntingYarder :: ShuntingYarder(){
-	this->toShunt="";
+	this->toShunt = "";
 }
 //set the string.
 void ShuntingYarder :: SetExpToShunt(string &s){
@@ -54,6 +54,11 @@ Expression* ShuntingYarder::Shunt(){
 	stack <char> operators;
 	for (i=0;i<toShunt.length();i++){
 		if (!isValidChar(toShunt[i])){
+			while (!expressions.empty())
+			{
+				delete expressions.top();
+				expressions.pop();
+			}
 			return nullptr;
 		}
 		if (toShunt[i] == ' '){
@@ -79,6 +84,11 @@ Expression* ShuntingYarder::Shunt(){
 			while (i<toShunt.size() && (toShunt[i] == '.' || isdigit(toShunt[i]))){
 				//exception if 2 dots in a raw.
 			    if(floatCheck > 1){
+					while (!expressions.empty())
+					{
+						delete expressions.top();
+						expressions.pop();
+					}
 			         return nullptr;
 			    }
 			    if (toShunt[i] == '.'){
@@ -90,7 +100,6 @@ Expression* ShuntingYarder::Shunt(){
 			    	i++;
             	}
 			    else{
-
 			    	currentValue += (double)(toShunt[i] - '0') / (pow(10 , afterDot));
 			    	i++;
 			    	afterDot++;
@@ -119,6 +128,13 @@ Expression* ShuntingYarder::Shunt(){
 
 		           if (chooseOp(val1, val2, op) == nullptr)
 		           {
+		        	   delete val1;
+		        	   delete val2;
+		        	   while (!expressions.empty())
+		        	   {
+		        		   delete expressions.top();
+		        		   expressions.pop();
+		        	   }
 		        	   return nullptr;
 		           }
 		           expressions.push(chooseOp(val1, val2, op));
@@ -133,24 +149,40 @@ Expression* ShuntingYarder::Shunt(){
                 continue;
             }
             if((toShunt[i] == '/' || toShunt [i] == '*') && isAfterOp){
+    			while (!expressions.empty())
+    			{
+    				delete expressions.top();
+    				expressions.pop();
+    			}
                 return nullptr;
             }
             if(expressions.empty() && (toShunt[i] == '/' || toShunt [i] == '*')){
+    			while (!expressions.empty())
+    			{
+    				delete expressions.top();
+    				expressions.pop();
+    			}
                 return nullptr;
             }
             while (!operators.empty() && precedence(operators.top())
                                   >= precedence(toShunt[i])) {
+
                 Expression *val2 = expressions.top();
                 expressions.pop();
-
                 Expression *val1 = expressions.top();
                 expressions.pop();
-
                 char op = operators.top();
                 operators.pop();
 
                 if (chooseOp(val1, val2, op) == nullptr)
                 {
+                	delete val1;
+                	delete val2;
+        			while (!expressions.empty())
+        			{
+        				delete expressions.top();
+        				expressions.pop();
+        			}
                 	return nullptr;
                 }
                 expressions.push(chooseOp(val1, val2, op));
@@ -162,17 +194,23 @@ Expression* ShuntingYarder::Shunt(){
 
 	}
     while(!operators.empty()){
-        Expression *val2 = expressions.top();
+        Expression *val2 =expressions.top();
         expressions.pop();
-
         Expression *val1 = expressions.top();
         expressions.pop();
-
         char op = operators.top();
         operators.pop();
 
+
         if (chooseOp(val1, val2, op) == nullptr)
         {
+        	delete val1;
+        	delete val2;
+			while (!expressions.empty())
+			{
+				delete expressions.top();
+				expressions.pop();
+			}
           	return nullptr;
         }
         expressions.push(chooseOp(val1, val2, op));
