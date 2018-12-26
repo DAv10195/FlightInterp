@@ -17,7 +17,6 @@ double OpenDataServerCommand :: execute()
 {
 	Expression* e1 = nullptr, * e2 = nullptr;
 	int port = 0, hz = 0, clilen = 0;
-	threadParams* p = new threadParams();
 	//structs for storing the connection information.
 	struct sockaddr_in serv_adr,cli_adr;
 	//case not enough params passed
@@ -106,6 +105,7 @@ double OpenDataServerCommand :: execute()
 	     return FAIL;
 	 }
 	 //construct params to thread
+	 threadParams* p = new threadParams();
 	 pthread_mutex_t* lock = (this->tAl)->lock;
 	 bool connection = false;
 	 p->sTable = this->sTable;
