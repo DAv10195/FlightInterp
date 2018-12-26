@@ -360,9 +360,10 @@ void* readThread(void* args)
 			i++;
 		}
 		size = message.size();
+		i = 0;
 		while (j < PATHES && i < size)
 		{
-			while (i < size && (isDig(message.at(i)) || message.at(i) == '.'))
+			while (i < size && (isDig(message.at(i)) || message.at(i) == '-' || message.at(i) == '.'))
 			{
 				val.push_back(message.at(i));
 				i++;
