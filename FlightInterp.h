@@ -16,6 +16,7 @@ struct threadParams
 	map<string, double>* sTable;
 	map<string, string>* refs;
 	bool* ifRun;
+	bool* connection;
 	pthread_mutex_t* lock;
 	int sockfd;
 	int hz;

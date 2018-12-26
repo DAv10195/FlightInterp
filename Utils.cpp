@@ -9,7 +9,7 @@
 #define FAIL 1
 #define BUFFER_SIZE 1024
 #define PATHES 23
-
+#define INP_WAIT 1
 //decides if the inputed character is a valid operator.
 bool isOper(char &c)
 {	//mathematical
@@ -330,7 +330,8 @@ void* readThread(void* args)
 	map<string, double>* sTable = p->sTable;
 	int sockfd = p->sockfd;
 	bool run = *(p->ifRun);
-	int status = 0, i = 0, j = 0, size = 0;
+	bool* connection = p->connection;
+	int status = 0, i = 0, j = 0, size = 0, input = 0;
 	char buffer[BUFFER_SIZE];
 	string val = "", ref = "", var = "", leftovers = "", message = "";
 	string pathes[PATHES];
@@ -353,6 +354,16 @@ void* readThread(void* args)
 			delete p;
 			return NULL;
 		}
+		if (!input)
+		{	//got first input from FlightGear!
+			input++;
+			continue;
+		}
+		pthread_mutex_lock(lock);
+		//release openDataServer Command...
+		*connection = true;
+
+		pthread_mutex_unlock(lock);
 		//store data received
 		while (buffer[i] && buffer[i] != '\n')
 		{

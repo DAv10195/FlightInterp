@@ -106,9 +106,12 @@ double OpenDataServerCommand :: execute()
 	     return FAIL;
 	 }
 	 //construct params to thread
+	 pthread_mutex_t* lock = (this->tAl)->lock;
+	 bool connection = false;
 	 p->sTable = this->sTable;
 	 p->refs = this->refs;
 	 p->ifRun = this->ifRun;
+	 p->connection = &connection;
 	 p->lock = (this->tAl)->lock;
 	 p->sockfd = this->socketId[NSOCK];
 	 p->hz = hz;
@@ -120,6 +123,15 @@ double OpenDataServerCommand :: execute()
 		 return FAIL;
 	 }
 	 *this->ifCreated = true;
+	 bool test = false;
+	 while (!test)
+	 {	//wait for first input from FlightGear
+		 pthread_mutex_lock(lock);
+
+		 test = connection;
+
+		 pthread_mutex_unlock(lock);
+	 }
 	 return SUCCESS;
 }
 

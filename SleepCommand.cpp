@@ -32,8 +32,8 @@ double SleepCommand :: execute()
 		cout << error.what() << endl;
 		return FAIL;
 	}
-	delete e;
-	this_thread::sleep_for(chrono::milliseconds((long)val));
+	delete e; //sleep for microseconds
+	usleep((long)val * 1000);
 
 	return SUCCESS;
 }

@@ -20,4 +20,6 @@ see UML file for more details).
 
 during the entire running time of the interpreter (more presicley upon calling openDataServer command) another thread runs in the background updating the symbol table with current values read from FlightGear.
 
+NOTE: sleep command is implemented by sleeping the amount inputed in MILLISECONDS!
+
 Have fun with FlightInterp 1.0!
