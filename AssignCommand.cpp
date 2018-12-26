@@ -76,6 +76,7 @@ double AssignCommand :: execute()
 
 	pthread_mutex_lock(lock);
 
+	(*this->sTable)[trg] = val;
 	while ((this->revRefs)->find(trg) != (this->revRefs)->end())
 	{	//looking for a variable binded to other variables
 		path = (*this->revRefs)[trg];
@@ -88,6 +89,7 @@ double AssignCommand :: execute()
 		pthread_mutex_unlock(lock);
 		return SUCCESS;
 	}
+
 	pthread_mutex_unlock(lock);
 
 	//send message to FlightGear

@@ -125,8 +125,8 @@ Expression* ShuntingYarder::Shunt(){
 		           expressions.pop();
 		           char op = operators.top();
 		           operators.pop();
-
-		           if (chooseOp(val1, val2, op) == nullptr)
+		           Expression* tmp = chooseOp(val1, val2, op);
+		           if (tmp == nullptr)
 		           {
 		        	   delete val1;
 		        	   delete val2;
@@ -137,7 +137,7 @@ Expression* ShuntingYarder::Shunt(){
 		        	   }
 		        	   return nullptr;
 		           }
-		           expressions.push(chooseOp(val1, val2, op));
+		           expressions.push(tmp);
 		     }
 		            // pop opening brace.
 		     operators.pop();
@@ -173,8 +173,8 @@ Expression* ShuntingYarder::Shunt(){
                 expressions.pop();
                 char op = operators.top();
                 operators.pop();
-
-                if (chooseOp(val1, val2, op) == nullptr)
+                Expression* tmp1 = chooseOp(val1, val2, op);
+                if (tmp1 == nullptr)
                 {
                 	delete val1;
                 	delete val2;
@@ -185,7 +185,7 @@ Expression* ShuntingYarder::Shunt(){
         			}
                 	return nullptr;
                 }
-                expressions.push(chooseOp(val1, val2, op));
+                expressions.push(tmp1);
             }
             // Push current token to 'ops'.
             operators.push(toShunt[i]);
@@ -201,8 +201,8 @@ Expression* ShuntingYarder::Shunt(){
         char op = operators.top();
         operators.pop();
 
-
-        if (chooseOp(val1, val2, op) == nullptr)
+        Expression* tmp2 = chooseOp(val1, val2, op);
+        if (tmp2 == nullptr)
         {
         	delete val1;
         	delete val2;
@@ -213,11 +213,18 @@ Expression* ShuntingYarder::Shunt(){
 			}
           	return nullptr;
         }
-        expressions.push(chooseOp(val1, val2, op));
+        expressions.push(tmp2);
     }
 
     // Top of 'values' contains result, return it.
-    return expressions.top();
+	Expression * toRet = expressions.top();
+	expressions.pop();
+	while (!expressions.empty())
+	{
+		delete expressions.top();
+		expressions.pop();
+	}
+	return toRet;
 }
 
 
