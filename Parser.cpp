@@ -61,7 +61,7 @@ Command* createSleepCommand()
 	return new SleepCommand();
 }
 //initialize command map
-void initCmdMap(map<string, Command*(*)(void)> &commands)
+void Parser:: initCmdMap(map<string, Command*(*)(void)> &commands)
 {
 	commands["openDataServer"] = &createOpenDataServerCommand;
 	commands["while"] = &createWhileCommand;
@@ -77,7 +77,7 @@ void initCmdMap(map<string, Command*(*)(void)> &commands)
 }
 //build conditioned command. An empty vector returned indicates failure.
 vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<string, double>* sTable,
-		map<string, string>* refs, map<string, string>* revRefs, map<string, Command*(*)(void)> &commands)
+		map<string, string>* refs, map<string, string>* revRefs)
 {
 	vector<Command*> toRet;
 	vector<Command*> tmp;
@@ -88,11 +88,11 @@ vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<stri
 
 	for (; i < j; i++)
 	{
-		if (commands.find(this->input[i]) != commands.end())
+		if ((this->commands).find(this->input[i]) != (this->commands).end())
 		{
 			if (this->input[i] == "while" || this->input[i] == "if")
 			{
-				c = commands[input[i]]();
+				c = this->commands[input[i]]();
 				i++;
 				cond = ifCond((this->tAl)->lock, sTable, this->input[i]);
 				if (!cond.size())
@@ -119,7 +119,7 @@ vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<stri
 				{
 					k++;
 				}
-				tmp = this->buildCondCmd(i, j, sTable, refs, revRefs, commands);
+				tmp = this->buildCondCmd(i, j, sTable, refs, revRefs);
 				c->setCommands(tmp);
 				c->setCondPar(cp);
 				toRet.push_back(c);
@@ -152,6 +152,7 @@ Parser :: Parser(bool* ic ,bool* ir, threadsAndLock* t, int* si)
 	this->tAl = t;
 	this->socketId = si;
 	this->Shunter = new ShuntingYarder();
+	this->initCmdMap(this->commands);
 }
 //sets the vector to be Parsed (that returned from the Lexer object)
 void Parser :: setVecToParse(vector<string> &toParse)
@@ -161,7 +162,6 @@ void Parser :: setVecToParse(vector<string> &toParse)
 //Parses the vector of the lexed input
 double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, map<string, string>* revRefs)
 {
-	map<string, Command*(*)(void)> commands;
 	Command* c = nullptr;
 	Expression* e = nullptr;
 	vector<string> cond;
@@ -175,11 +175,11 @@ double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, m
 
 	for (; i < size; i++)
 	{	//building a vector of command expressions to be executed
-		if (commands.find(this->input[i]) != commands.end())
+		if ((this->commands).find(this->input[i]) != (this->commands).end())
 		{	//case while or if command
 			if (this->input[i] == "while" || this->input[i] == "if")
 			{
-				c = commands[this->input[i]]();
+				c = this->commands[this->input[i]]();
 				i++;
 				cond = ifCond((this->tAl)->lock, sTable, this->input[i]);
 				if (!cond.size())
@@ -224,7 +224,7 @@ double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, m
 					return FAIL;
 				}
 				//building the vector of commands inside the block
-				tmp = this->buildCondCmd(i, j, sTable, refs, revRefs, commands);
+				tmp = this->buildCondCmd(i, j, sTable, refs, revRefs);
 				if (!tmp.size())
 				{
 					return FAIL;

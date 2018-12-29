@@ -71,14 +71,16 @@ class ConditionParser
 class Parser
 {
 	ShuntingYarder* Shunter;
+	map<string, Command*(*)(void)> commands;
 	vector<string> input;
 	bool* ifRun;
 	bool* ifCreated;
 	threadsAndLock* tAl;
 	int* socketId;
 
+	void initCmdMap(map<string, Command*(*)(void)> &commands);
 	virtual vector<Command*> buildCondCmd(unsigned int i, unsigned int j, map<string, double>* sTable,
-			map<string, string>* refs, map<string, string>* revRefs, map<string, Command*(*)(void)> &commands);
+			map<string, string>* refs, map<string, string>* revRefs);
 
 	public:
 		Parser(bool* ic ,bool* ir, threadsAndLock* t, int* si);
