@@ -127,7 +127,7 @@ vector<Command*> Parser :: buildCondCmd(unsigned int i, unsigned int j, map<stri
 			}	//other command
 			else
 			{	//build the command.
-				c = commands[this->input[i]]();
+				c = this->commands[this->input[i]]();
 				c->setTable(sTable);
 				c->setRefs(refs);
 				c->setRevRefs(revRefs);
@@ -170,8 +170,6 @@ double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, m
 	unsigned int i = 0, j = 0, counter = 0, cmdCount = 0;
 	unsigned int size = this->input.size();
 	bool flag = false;
-
-	initCmdMap(commands);
 
 	for (; i < size; i++)
 	{	//building a vector of command expressions to be executed
@@ -235,7 +233,7 @@ double Parser :: Parse(map<string, double>* sTable, map<string, string>* refs, m
 			}
 			else
 			{	//build command
-				c = commands[this->input[i]]();
+				c = this->commands[this->input[i]]();
 				c->setTable(sTable);
 				c->setRefs(refs);
 				c->setRevRefs(revRefs);

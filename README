@@ -2,6 +2,14 @@ created by David Abramov and Nikita Kogan.
 
 We wanted to give a bit of information about our interpreter...
 
+NOTE: make make sure you have passed valid arguments to FlightGear.
+
+enter these two arguments in the Settings->Additional Settings box:
+--generic=socket,out,10,nnn.nnn.nnn.nnn,5400,tcp,generic_small -
+with i.p. of computer running interpreter (and put the included generic small xml file in the FlightGear installation folder "data/Protocol").   
+--telnet=socket,in,10,nnn.nnn.nnn.nnn,5402,tcp -
+with i.p. of computer running FlightGear
+
 First of all, we support both command-line input and file input (including a command-line "run"
 command which takes a file path as an argument).
 
@@ -9,7 +17,7 @@ The interpreter will run until "exit" command is inputed (via file or command-li
 
 Each argument passed via running the exexcutable file is read and executed command by command.
 
-Make sure you run out Interpreter BEFORE running FlightGear!!!
+Make sure you run our Interpreter BEFORE running FlightGear!!!
 
 Secondly, our interpreter lexes the input, and than parses it. upon parsing each command, in case
 it is valid and it got valid paramaters, it will be executed on the spot.
