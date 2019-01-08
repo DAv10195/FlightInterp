@@ -9,7 +9,6 @@
 #define FAIL 1
 #define BUFFER_SIZE 1024
 #define PATHES 23
-#define INP_WAIT 1
 //decides if the inputed character is a valid operator.
 bool isOper(char &c)
 {	//mathematical

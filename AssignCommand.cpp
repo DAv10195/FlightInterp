@@ -80,7 +80,7 @@ double AssignCommand :: execute()
 	while ((this->revRefs)->find(trg) != (this->revRefs)->end())
 	{	//looking for a variable binded to other variables
 		path = (*this->revRefs)[trg];
-		(*this->sTable)[trg] = val;
+		(*this->sTable)[path] = val;
 		trg = path;
 	}
 	//case unbinded variable assignment
