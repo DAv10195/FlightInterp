@@ -332,7 +332,7 @@ void* readThread(void* args)
 	bool* connection = p->connection;
 	int status = 0, i = 0, j = 0, size = 0, input = 0;
 	char buffer[BUFFER_SIZE];
-	string val = "", ref = "", var = "", leftovers = "", message = "";
+	string val = "", ref = "", var = "", message = "";
 	string pathes[PATHES];
 	double vals[PATHES];	//initialize values to 0
 	for (; i < PATHES; i++)

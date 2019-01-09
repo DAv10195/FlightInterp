@@ -7,7 +7,6 @@
 #define FAIL 1
 #define EXIT 2
 #define NUM_SOCK 3
-#define NUM_BOOLS 2
 #define SECOND 1
 //runs the whole deal
 void run(int argc, char* argv[])

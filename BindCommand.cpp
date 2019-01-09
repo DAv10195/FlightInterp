@@ -1,4 +1,4 @@
-//Implementation of AssignCommand object
+//Implementation of BindCommand object
 #include "Command.h"
 #define SUCCESS 0
 #define FAIL 1

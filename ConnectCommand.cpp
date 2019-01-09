@@ -8,7 +8,6 @@
 #define SUCCESS 0
 #define FAIL 1
 #define SOCKFD 2
-#define W_THREAD 1
 #define IP_NUMS 4
 #define DOT_NUM 3
 #define MAX_IP 255

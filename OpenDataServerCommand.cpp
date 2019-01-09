@@ -7,7 +7,6 @@
 #include "netinet/in.h"
 #define SUCCESS 0
 #define FAIL 1
-#define READ_THREAD 1
 #define SOCKFD 0
 #define NSOCK 1
 #define R_THREAD 0

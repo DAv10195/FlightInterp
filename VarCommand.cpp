@@ -1,4 +1,4 @@
-//Implementation of AssignCommand object
+//Implementation of VarCommand object
 #include "Command.h"
 #include "Utils.h"
 #define SUCCESS 0
