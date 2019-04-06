@@ -388,7 +388,6 @@ void* readThread(void* args)
 				delete p;
 				return NULL;
 			}
-			vals[j] = stod(val);
 			val = "";
 			i++;
 			j++;
