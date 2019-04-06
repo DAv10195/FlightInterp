@@ -378,6 +378,16 @@ void* readThread(void* args)
 				val.push_back(message.at(i));
 				i++;
 			}
+			try
+			{
+				vals[j] = stod(val);
+			}
+			catch (exception &e)
+			{
+				cout << "Error reading data from FlightGear" << endl;
+				delete p;
+				return NULL;
+			}
 			vals[j] = stod(val);
 			val = "";
 			i++;
